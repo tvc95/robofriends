@@ -1,49 +1,48 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './app.css';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
-import ErrorBoundary from '../components/ErrorBoundary'
-import { robots } from '../robots';
-import { render } from '@testing-library/react';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-class App extends Component {
-    constructor() {
-        super();
-        this.state = {
-            robots: [],
-            searchField: ''
-        }
-    }
+const App = () => {
+    // Hooks
+    // Declaring a new state variable
+    const [searchField, setSearchField] = useState("");
+    const [robots, setRobots] = useState([]);
+    const [count,setCount] = useState(0);
 
-    componentDidMount() {
+    //The array at the end of useEffect is equivalent to "componentDidMount"
+    useEffect(() => {
         fetch('https://jsonplaceholder.typicode.com/users')
             .then(response => response.json())
-            .then(users => this.setState({ robots: users }));
+            .then(users => setRobots(users));
 
+        console.log(count);
+    },[count]); //only run if "count" changes
+    
+    const onSearchChange = (event) => {
+        setSearchField(event.target.value);
+        // in hooks, the function above substitutes 
+        //this.setState({ searchField: event.target.value });
     }
 
-    onSearchChange = (event) => {
-        this.setState({ searchField: event.target.value });
-    }
+    const filteredRobots = robots.filter(robot => {
+        return robot.name.toLowerCase().includes(searchField.toLowerCase());
+    });
 
-    render() {
-        const { robots, searchField } = this.state;
-        const filteredRobots = robots.filter(robot => {
-            return robot.name.toLowerCase().includes(searchField.toLowerCase());
-        });
-        return (
-            <div className='tc'>
-                <h1 className='f1'>RoboFriends</h1>
-                <SearchBox searchChange={this.onSearchChange} />
-                <Scroll>
-                    <ErrorBoundary>
-                        <CardList robots={filteredRobots} />
-                    </ErrorBoundary>
-                </Scroll>
-            </div>
-        );
-    }
+    return (
+        <div className='tc'>
+            <h1 className='f1'>RoboFriends</h1>
+            <button onClick={() => setCount(count + 1)}>Click</button>
+            <SearchBox searchChange={onSearchChange} />
+            <Scroll>
+                <ErrorBoundary>
+                    <CardList robots={filteredRobots} />
+                </ErrorBoundary>
+            </Scroll>
+        </div>
+    )
 
 }
 
