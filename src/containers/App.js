@@ -4,13 +4,27 @@ import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { setSearchField } from '../actions';
+import { connect } from 'react-redux';
 
-const App = () => {
+const mapStateToProps = state => {
+  return {
+    searchField: state.searchField
+  }
+}
+
+const mapDispatchToProps = (dispatch) => ({
+  onSearchChange: (event) => dispatch(setSearchField(event.target.value))
+})
+
+const App = (props) => {
+    // console.log(props.store.getState());
     // Hooks
     // Declaring a new state variable
-    const [searchField, setSearchField] = useState("");
     const [robots, setRobots] = useState([]);
     const [count,setCount] = useState(0);
+
+    const { searchField, onSearchChange } = props;
 
     //The array at the end of useEffect is equivalent to "componentDidMount"
     useEffect(() => {
@@ -20,12 +34,6 @@ const App = () => {
 
         console.log(count);
     },[count]); //only run if "count" changes
-    
-    const onSearchChange = (event) => {
-        setSearchField(event.target.value);
-        // in hooks, the function above substitutes 
-        //this.setState({ searchField: event.target.value });
-    }
 
     const filteredRobots = robots.filter(robot => {
         return robot.name.toLowerCase().includes(searchField.toLowerCase());
@@ -46,4 +54,4 @@ const App = () => {
 
 }
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
